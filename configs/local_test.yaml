@@ -1,0 +1,78 @@
+data_configs:
+  lang_pair: "zh-en"
+  train_data:
+    - "./unittests/data/train/zh.under50.txt"
+    - "./unittests/data/train/en.under50.txt"
+  valid_data:
+    - "./unittests/data/dev/zh.0"
+    - "./unittests/data/dev/en.0"
+  bleu_valid_reference: "./unittests/data/dev/en."
+  vocabularies:
+    - type: "bpe"
+      dict_path: "./unittests/data/bpe/dict/dict.zh.json"
+      max_n_words: 501
+      bpe_codes: "./unittests/data/bpe/codes/zh.codes"
+    - type: "bpe"
+      dict_path: "./unittests/data/bpe/dict/dict.en.json"
+      max_n_words: 502
+      bpe_codes: "./unittests/data/bpe/codes/en.codes"
+  max_len:
+    - 20
+    - 20
+  num_refs: 4
+  eval_at_char_level: false
+
+model_configs:
+  model: DynamicTransformer
+  n_layers: 6
+  n_head: 8
+  d_word_vec: 512
+  d_model: 512
+  d_inner_hid: 2048
+  dropout: 0.1
+  proj_share_weight: true
+  label_smoothing: 0.1
+  # capsule
+  capsule_type: "layer-wise"
+  routing_type: "dynamic_routing"
+  d_capsule: 240
+  num_capsules: 6
+  apply_word_prediction_loss: true
+  auxiliary_loss:
+    -
+  null_capsule: false
+
+optimizer_configs:
+  optimizer: "adam"
+  learning_rate: 0.0005
+  grad_clip: 1.0
+  optimizer_params: ~
+  schedule_method: loss
+  scheduler_configs:
+    patience: 5
+    min_lr: 0.0001
+    scale: 0.75
+
+training_configs:
+  seed: 1234
+  max_epochs: 50
+  shuffle: true
+  use_bucket: true
+  batch_size: 1024
+  batching_key: "tokens"
+  update_cycle: 4
+  valid_batch_size: 20
+  disp_freq: 1000
+  save_freq: 1000
+  num_kept_checkpoints: 1
+  loss_valid_freq: 1000
+  bleu_valid_freq: 1000
+  bleu_valid_batch_size: 20
+  bleu_valid_warmup: 1
+  bleu_valid_configs:
+    max_steps: 150
+    beam_size: 5
+    alpha: 0.0
+    sacrebleu_args: "--tokenize none -lc"
+    postprocess: false
+  early_stop_patience: 50
