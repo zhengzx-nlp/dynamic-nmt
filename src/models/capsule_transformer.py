@@ -606,17 +606,17 @@ class CapsuleTransformer(NMTModel):
             params_dict["wploss_future"] = params_wploss_future
 
         if "bca" in self.config["auxiliary_loss"]:
-            dec_non_mask = labels.ne(PAD)
+            past_nonpad_mask, future_nonpad_mask = prev_labels.ne(PAD), next_labels.ne(PAD)
             params_bca_past = dict(
                 inputs=inputs["past_capsules"],
                 labels=get_prev_sequence_average(inputs["dec_outs"]),
-                mask=dec_non_mask,
+                mask=past_nonpad_mask,
                 update=True
             )
             params_bca_future = dict(
                 inputs=inputs["past_capsules"],
                 labels=get_sub_sequence_average(inputs["dec_outs"]),
-                mask=dec_non_mask,
+                mask=future_nonpad_mask,
                 update=True
             )
             params_dict["bca_past"] = params_bca_past
